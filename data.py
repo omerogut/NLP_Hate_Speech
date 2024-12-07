@@ -1,10 +1,21 @@
 import pandas as pd 
+from sklearn.model_selection import train_test_split
+from datasets import load_dataset
+    
+def load_data():
+    
+    dataset = load_dataset("fawern/turkish-hate-speech")
 
-def load_data(excel_path):
-    sheet_names = pd.ExcelFile(excel_path).sheet_names
+    df = pd.DataFrame(dataset['train'])
 
-    df = {sheet: pd.read_excel(excel_path, sheet_name=sheet, header=1) for sheet in sheet_names if sheet != "TOPLAM"}
+    X = df['tweet']
+    y = df['label']
 
-    df = pd.concat(df.values(), ignore_index = True)
+    labels = y.unique()
+    label_dict = {label: i for i, label in enumerate(labels)}
 
-    return df 
+    y = y.map(label_dict)
+
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    return X_train, X_test, y_train, y_test, label_dict
